@@ -32,6 +32,13 @@ func cmdAdd(args *skel.CmdArgs) error {
 		utils.WriteLog(err.Error())
 		return err
 	}
+	//1.给Pod分配IP
+	//2.实现同一Node之间Pod网络互通
+	//3.实现不同Node之间Pod网络互通
+
+	//每一个Node分配同一个子网下的不同网段
+	pluginConfig.Subnet
+
 
 	return nil
 }
