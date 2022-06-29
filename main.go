@@ -5,6 +5,7 @@ import (
 	"github.com/containernetworking/cni/pkg/types"
 	"github.com/containernetworking/cni/pkg/version"
 	bv "github.com/containernetworking/plugins/pkg/utils/buildversion"
+	"mycni/netlinktool"
 	"mycni/skel"
 	utils "mycni/util"
 )
@@ -37,8 +38,13 @@ func cmdAdd(args *skel.CmdArgs) error {
 	//3.实现不同Node之间Pod网络互通
 
 	//每一个Node分配同一个子网下的不同网段
-	pluginConfig.Subnet
+	//pluginConfig.Subnet
 
+	//实现同一Node之间Pod网络互通
+	err = netlinktool.CreateBridgeAndSetupVeth(pluginConfig.Bridge, args.Netns, args.IfName)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
