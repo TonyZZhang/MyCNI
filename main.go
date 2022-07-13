@@ -38,6 +38,12 @@ func cmdAdd(args *skel.CmdArgs) error {
 	}
 	//1.给Pod分配IP
 	//2.实现同一Node之间Pod网络互通
+	//实现思路
+	//1)接收创建pod网络的请求，解析出pod的网络namespace以及网卡名
+	//2)宿主机上如果没有pod间通信的bridge,则创建bridge
+	//3)创建veth pair,一端的名字叫做传进来的IfName，然后将veth pair一端放进pod Namespace，一端放进pod bridge
+	//4)为pod以及bridge分配IP
+
 	//3.实现不同Node之间Pod网络互通
 
 	//每一个Node分配同一个子网下的不同网段
