@@ -15,7 +15,6 @@ type EtcdConfig struct {
 }
 
 func connectStore(etcdConfig *EtcdConfig) (*clientv3.Client, error) {
-
 	var etcdClient *clientv3.Client
 	var err error
 	if strings.HasPrefix(etcdConfig.EtcdURL, "https") {
