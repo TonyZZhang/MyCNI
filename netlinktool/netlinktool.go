@@ -2,6 +2,7 @@ package netlinktool
 
 import "fmt"
 
+//闭包的学习
 type SampleNs interface {
 	Do(toRun func(SampleNs) error) error
 }
@@ -21,6 +22,7 @@ func DoDo(){
 	myNs.name = "myNs"
 	err := myNs.Do(func(hostNs SampleNs) error {
 		fmt.Println(hostNs)
+		//此处打印结果 &{inner ns}
 		return nil
 	})
 	fmt.Println(err)
