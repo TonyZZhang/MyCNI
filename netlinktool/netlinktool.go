@@ -44,13 +44,30 @@ type podNet struct {
 	mut int
 }
 
+func NewPodNet(netNamespace, iframe, IP string, mut int)*podNet{
+	return &podNet{
+		netNamespace: netNamespace,
+		iframe: iframe,
+		IP: IP,
+		mut: mut,
+	}
+}
+
 type nodeBridge struct {
 	name string
 	IP string
 	mut int
 }
 
-func CreatePodNetInSameNode(b nodeBridge, p podNet)error {
+func NewNodeBridge(name, IP string, mut int) *nodeBridge {
+	return &nodeBridge{
+		name: name,
+		IP: IP,
+		mut: mut,
+	}
+}
+
+func CreatePodNetInSameNode(b *nodeBridge, p *podNet)error {
 	// 先创建网桥
 	br, err := b.createBridgeOnHost()
 	if err != nil {
@@ -58,6 +75,10 @@ func CreatePodNetInSameNode(b nodeBridge, p podNet)error {
 		return err
 	}
 
+	netns, err := ns.GetNS(p.netNamespace)
+	if err != nil {
+		return err
+	}
 	err = netns.Do(func(hostNs ns.NetNS) error {
 		// 创建一对儿 veth 设备
 		containerVeth, hostVeth, err := p.createVethPair()

@@ -2,15 +2,13 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/containernetworking/cni/pkg/types"
 	"github.com/containernetworking/cni/pkg/version"
 	bv "github.com/containernetworking/plugins/pkg/utils/buildversion"
-	"github.com/vishvananda/netlink"
 	"mycni/netlinktool"
 	"mycni/skel"
 	utils "mycni/util"
-	"net"
+	"os"
 )
 
 type PluginConf struct {
@@ -48,34 +46,18 @@ func cmdAdd(args *skel.CmdArgs) error {
 
 	//每一个Node分配同一个子网下的不同网段
 	//pluginConfig.Subnet
-	IP := ""
+	//IP := ""
 	//实现同一Node之间Pod网络互通
-	netns, err := ns.GetNS(args.Netns)
+	podIP := ""
+	nodeBridgeIP := ""
+	hostName,_ := os.Hostname()
+	nodeBridgeName := hostName + "_bridge"
+	n := netlinktool.NewPodNet(args.Netns, args.IfName, podIP, 50)
+	b := netlinktool.NewNodeBridge(nodeBridgeName, nodeBridgeIP, 50)
+	err = netlinktool.CreatePodNetInSameNode(b, n)
 	if err != nil {
 		return err
 	}
-
-	err = netlinktool.CreateBridgeAndSetupVeth(pluginConfig.Bridge, netns, args.IfName)
-	if err != nil {
-		return err
-	}
-
-	//Setup a IP address
-	err = netns.Do(func(hostNS ns.NetNS) error {
-		// create the veth pair in the container and move host end into host netns
-
-		link, err := netlink.LinkByName(args.IfName)
-		if err != nil {
-			return err
-		}
-		ipv4Addr, ipv4Net, err := net.ParseCIDR(IP)
-		addr := &netlink.Addr{IPNet: ipv4Net, Label: ""}
-		ipv4Net.IP = ipv4Addr
-		if err = netlink.AddrAdd(link, addr); err != nil {
-			return fmt.Errorf("failed to add IP addr %v to %q: %v", ipv4Net, args.IfName, err)
-		}
-		return nil
-	})
 
 
 	return nil
